@@ -35,7 +35,7 @@ namespace Sabio.Web.Core.Services
                                                             , ClaimsIdentity.DefaultNameClaimType
                                                             , ClaimsIdentity.DefaultRoleClaimType);
 
-            identity.AddClaim(new Claim("http://schemas.microsoft.com/accesscontrolservice/2010/07/claims/identityprovider"
+            identity.AddClaim(new Claim("****************************"
                                 , _title
                                 , ClaimValueTypes.String));
 
@@ -71,25 +71,6 @@ namespace Sabio.Web.Core.Services
 
             await _contextAccessor.HttpContext
                 .SignInAsync(AuthenticationDefaults.AuthenticationScheme, principal, props);
-        }
-
-        public async Task LogOutAsync()
-        {
-            await _contextAccessor.HttpContext.SignOutAsync(AuthenticationDefaults.AuthenticationScheme);
-        }
-
-        public bool IsLoggedIn()
-        {
-            return _contextAccessor.HttpContext.User.Identity.IsAuthenticated;
-        }
-
-        /// <summary>
-        /// Only call this when the user IsLoggedIn
-        /// </summary>
-        /// <returns></returns>
-        public int GetCurrentUserId()
-        {
-            return GetId(_contextAccessor.HttpContext.User.Identity).Value;
         }
 
         public IUserAuthData GetCurrentUser()
@@ -163,35 +144,6 @@ namespace Sabio.Web.Core.Services
             baseUser.Roles = roles;
 
             return baseUser;
-        }
-
-        private static int? GetId(IIdentity identity)
-        {
-            if (identity == null) { throw new ArgumentNullException("identity"); }
-            if (!identity.IsAuthenticated) { throw new InvalidOperationException("The current IIdentity is not Authenticated"); }
-            ClaimsIdentity ci = identity as ClaimsIdentity;
-
-            int idParsed = 0;
-
-            if (ci != null)
-            {
-                Claim claim = ci.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
-
-                if (claim != null && Int32.TryParse(claim.Value, out idParsed))
-                {
-                    return idParsed;
-                }
-            }
-            return null;
-        }
-
-        private static string GetApplicationName()
-        {
-            var entryAssembly = Assembly.GetExecutingAssembly();
-
-            var titleAttribute = entryAssembly.GetCustomAttributes(typeof(AssemblyTitleAttribute), false).FirstOrDefault() as AssemblyTitleAttribute;
-
-            return titleAttribute == null ? entryAssembly.GetName().Name : titleAttribute.Title;
         }
     }
 }
